@@ -1,16 +1,24 @@
-"""The workshop file: connect this app to Gemini here."""
-
+import os
+from dotenv import load_dotenv
+from google import genai
+from prompt import build_grading_prompt
 
 def grade_resume(resume_text: str) -> str:
-    """Return resume feedback for the text entered in the Gradio app."""
     if not resume_text or not resume_text.strip():
         return "Please paste a resume before grading it."
 
-    # TODO 1: Read GEMINI_API_KEY from the environment (or load it from .env).
-    # TODO 2: Import `genai` from `google` and initialize a Gemini client.
-    # TODO 3: Import and call `build_grading_prompt` from prompt.py.
-    # TODO 4: Send the finished prompt and resume text to a Gemini model.
-    # TODO 5: Extract the model's text response and return it below.
-    # Tip: Keep this function small. It only needs to send one request and return text.
+    load_dotenv()
+    api_key = os.getenv("GEMINI_API_KEY")
 
-    return "AI functionality has not been implemented yet. Connect the Gemini API in ai.py!"
+    if not api_key:
+        return "Missing GEMINI_API_KEY"
+
+    client = genai.Client(api_key=api_key)
+    prompt = build_grading_prompt(resume_text)
+
+    response = client.interactions.create(
+        model = "gemini-3.8-flash",
+        input = prompt,
+    )
+
+    return response.output_text
